@@ -1,0 +1,54 @@
+#summary MobileStudio's AppLauncher
+
+= Introduction =
+
+Use this simple library from the svn to allow your applications to be launched with MobileStudio.
+
+  * [http://mobilestudio.googlecode.com/svn/trunk/MobileStudio/src/MSAppLauncher.h MSAppLauncher.h]
+  * [http://mobilestudio.googlecode.com/svn/trunk/MobileStudio/src/MSAppLauncher.m MSAppLauncher.m]
+
+= Details =
+
+To read the first passed argument from LaunchInfo.plist:
+
+{{{
+NSString* argument = [MSAppLauncher readLaunchInfoArgumentsFromBundlePath: @"/Applications/TextEdit.app"];
+}}}
+
+Which returns nil if no LaunchInfo.plist is found or no arguments are passed.
+
+To launch an application, building a full plist, with the ability to pass many arguments (only one in this example):
+
+{{{
+[MSAppLauncher launchApplication: @"com.port21.iphone.TextEdit"
+                withAppBundlePath: @"/Applications/TextEdit.app"
+                withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
+                withApplication: _application
+                withLaunchingAppID: @"com.googlecode.MobileFinder"
+                withLaunchingAppBundlePath: @"/Applications/Finder.app"];
+}}}
+
+The file output looks like this:
+
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>MSLaunchedAppArguments</key>
+    <array>
+        <string>/private/var/root/MobileFinderApp.tst</string>
+    </array>
+    <key>MSLaunchedAppBundlePath</key>
+    <string>/Applications/Finder.app</string>
+    <key>MSLaunchedAppIdentifier</key>
+    <string>com.googlecode.MobileFinder</string>
+    <key>MSLaunchingAppBundlePath</key>
+    <string>/Applications/Finder.app</string>
+    <key>MSLaunchingAppIdentifier</key>
+    <string>com.googlecode.MobileFinder</string>
+</dict>
+</plist>
+}}}
+
+
