@@ -3,8 +3,9 @@ LD=$(CC)
 LDFLAGS=-lobjc -framework CoreFoundation -framework Foundation -framework UIKit -framework LayerKit
 
 all:	Finder TextEdit Preview package
+#all:	TextEdit Preview package
 
-Finder:	src/MobileFinder/MobileFinder.o src/MobileFinder/MobileFinderApp.o
+Finder:	src/MobileFinder/MobileFinder.o src/MobileFinder/MobileFinderApp.o src/MobileFinder/MobileFinderBrowser.m
 	$(LD) $(LDFLAGS) -o $@ $^
 	
 TextEdit:	src/MobileTextEdit/main.o src/MobileTextEdit/MobileTextEdit.o
