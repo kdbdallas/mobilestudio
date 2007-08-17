@@ -10,6 +10,9 @@
 #import <UIKit/UIView.h>
 #import <UIKit/UIKeyboard.h>
 #import <UIKit/UIAlertSheet.h>
+#import <UIKit/UINavBarButton.h>
+#import <UIKit/UIButtonBar.h>
+#import <UIKit/UIButtonBarTextButton.h>
 
 @interface MobileTextEdit : UIApplication {
         UIView      *mainView;
@@ -21,6 +24,10 @@
 		UIAlertSheet *popup;
 		NSArray *buttons;
 		UIApplication *app;
+		UINavBarButton *_newButton;
 }
+
+- (void) resetFileOpButtons;
+- (void) newButtonPressed;
 
 @end
