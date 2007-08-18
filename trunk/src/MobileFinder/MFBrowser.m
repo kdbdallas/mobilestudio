@@ -1,5 +1,5 @@
 /*
-	MobileFinderBrowser.m
+	MFBrowser.m
 	
 	Finder file browser control.
 	
@@ -41,14 +41,18 @@
 #import <UIKit/UIImage.h>
 #import <UIKit/UIButtonBar.h>
 #include <unistd.h>
-#import "MobileFinderBrowser.h"
+#import "MFBrowser.h"
+#import "MSAppLauncher.h"
 
-@implementation MobileFinderBrowser : UIView
+@implementation MFBrowser : UIView
 
-- (id) initWithFrame: (struct CGRect)rect
+- (id) initWithApplication: (UIApplication*) app andFrame: (struct CGRect)rect
 {
 	//Init view with frame rect
 	[super initWithFrame: rect];
+	
+	//Save application object for launching other apps
+	_application = app;
 	
 	//Setup fileview table
     _fileviewTable = [[UITable alloc] initWithFrame: CGRectMake(0.0f, 0.0f, rect.size.width, rect.size.height)];
@@ -56,6 +60,7 @@
 	[_fileviewTable addTableColumn: _fileviewTableCol]; 
     [_fileviewTable setDataSource: self];
     [_fileviewTable setDelegate: self];
+	[_fileviewTable setRowHeight: 64.0f];
 	[_fileviewTable reloadData];
 	[self addSubview: _fileviewTable];
 	
@@ -68,11 +73,10 @@
 
 - (NSString*) absolutePath: (NSString*) path
 {
-	NSString* absolutePath;
-	if ([path isAbsolutePath])
-		absolutePath = [[NSString alloc] initWithString: path];
+	if ([path isAbsolutePath] || [[path stringByDeletingLastPathComponent] isEqualToString: @"/"])
+		return [[NSString alloc] initWithString: path];
 	else
-		absolutePath = [[NSString alloc] initWithString: [
+		return [[NSString alloc] initWithString: [
 			[_fileManager currentDirectoryPath] stringByAppendingPathComponent: path]];		
 }
 
@@ -86,20 +90,15 @@
 	return _selectedPath;
 }
 
-- (void) setApplication: (UIApplication*)app
-{
-	_application = app;
-}
-
 - (void) setDelegate: (id)delegate;
 {
 	_delegate = delegate;
 	
 	//TODO: Better way to initialize this?
 	//Notify delegate of current statuses	
-	[_delegate browserCurrentDirectoryChanged: self ToPath: [_fileManager currentDirectoryPath]];
+	[_delegate browserCurrentDirectoryChanged: self toPath: [_fileManager currentDirectoryPath]];
 	if (_selectedPath != nil)
-		[_delegate browserCurrentSelectedPathChanged: self ToPath: _selectedPath];
+		[_delegate browserCurrentSelectedPathChanged: self toPath: _selectedPath];
 }
 
 - (void) refreshFileView
@@ -126,7 +125,7 @@
 		UIImageAndTextTableCell* cell = [[UIImageAndTextTableCell alloc] init];
 		[cell setTitle: filename];	
 		[cell setImage: [self determineFileIcon: filename]];
-	
+					
 		//Add filename and cell to collections
 		//Cells and filenames are stored seperately to allow the displayed name to differ from the actual name
 		//(eg. Calculator.app -> Calculator)
@@ -141,7 +140,7 @@
 - (void) selectPath: (NSString*)path
 {
 	_selectedPath = [[NSString alloc] initWithString: path];
-	[_delegate browserCurrentSelectedPathChanged: self ToPath: _selectedPath];
+	[_delegate browserCurrentSelectedPathChanged: self toPath: _selectedPath];
 	
 	//TODO: Select the table cell in the UI or make this function private
 }
@@ -159,14 +158,35 @@
 		[self refreshFileView];		
 	
 		//Let delegate know of directory change
-		[_delegate browserCurrentDirectoryChanged: self ToPath: [_fileManager currentDirectoryPath]];
+		[_delegate browserCurrentDirectoryChanged: self toPath: [_fileManager currentDirectoryPath]];
 		
 		//Execute application if this is an application
 		//TODO: Need to save current position in finder before execute
-		if ([extension isEqualToString: @"app"] && _application != nil)
+		if ([extension isEqualToString: @"app"])
 		{
-			//Launch application (Thanks Launcher.app dev team!)
-			[_application launchApplicationWithIdentifier:@"com.port21.iphone.TextEdit" suspended:NO];
+			//Check to see if the application directory has an Info.plist
+			NSString* infoPListPath = [path stringByAppendingPathComponent: @"Info.plist"];
+			if ([_fileManager isReadableFileAtPath: path])
+			{
+				//Open the plist and find the application's identifier
+				NSDictionary* plistDict = [NSDictionary dictionaryWithContentsOfFile: infoPListPath];
+				NSEnumerator* enumerator = [plistDict keyEnumerator];
+				NSString* key;
+				NSString* appID;
+				while (key = [enumerator nextObject]) 
+				{					
+					if ([key isEqualToString: @"CFBundleIdentifier"])
+					{
+						[_delegate browserCurrentDirectoryChanged: self toPath: key];
+						appID = [plistDict valueForKey: key];
+						break;
+					}
+				}				
+				
+				//Launch application
+				if (appID != nil && appID != @"com.apple.springboard")
+					[MSAppLauncher launchApplication: appID withApplication: _application];
+			}
 		}
 	}
 	else
@@ -181,11 +201,46 @@
 			//Should only execute executables that eventually end
 			//TODO: Allow cancelation of execution
 			system([absolutePath fileSystemRepresentation]);
-		}		
+		}	
 		else if ([extension isEqualToString: @"txt"])
 		{
-			//TODO: Dynamic prefs for strings
-			[_application launchApplicationWithIdentifier:@"com.port21.iphone.TextEdit" suspended: NO];
+			//TODO: Dynamic prefs for strings			
+			[MSAppLauncher launchApplication: @"com.google.code.MobileTextEdit" 
+				withAppBundlePath: @"/Applications/TextEdit.app"
+				withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
+				withApplication: _application
+				withLaunchingAppID: @"com.googlecode.MobileFinder"
+				withLaunchingAppBundlePath: @"/Applications/Finder.app"];				
+		}
+		else if ([extension isEqualToString: @"plist"])
+		{
+			//TODO: Dynamic prefs for strings			
+			[MSAppLauncher launchApplication: @"com.google.code.MobileTextEdit" 
+				withAppBundlePath: @"/Applications/TextEdit.app"
+				withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
+				withApplication: _application
+				withLaunchingAppID: @"com.googlecode.MobileFinder"
+				withLaunchingAppBundlePath: @"/Applications/Finder.app"];				
+		}
+		else if ([extension isEqualToString: @"tst"])
+		{
+			//TODO: Dynamic prefs for strings			
+			[MSAppLauncher launchApplication: @"com.googlecode.MobileFinder" 
+				withAppBundlePath: @"/Applications/Finder.app"
+				withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
+				withApplication: _application
+				withLaunchingAppID: @"com.googlecode.MobileFinder"
+				withLaunchingAppBundlePath: @"/Applications/Finder.app"];
+		}
+		else if ([extension isEqualToString: @"png"] || [extension isEqualToString: @"gif"] || [extension isEqualToString: @"jpg"])
+		{
+			//TODO: Dynamic prefs for strings			
+			[MSAppLauncher launchApplication: @"com.google.code.MobilePreview" 
+				withAppBundlePath: @"/Applications/Preview.app"
+				withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
+				withApplication: _application
+				withLaunchingAppID: @"com.googlecode.MobileFinder"
+				withLaunchingAppBundlePath: @"/Applications/Finder.app"];
 		}
 	}
 }
@@ -205,16 +260,17 @@
 	[self openPath: NSHomeDirectory()];
 }
 
-- (void) sendSrcPath: (NSString*)srcPath ToDstPath: (NSString*)dstPath ByMoving: (BOOL)move;
+- (void) changeDirectoryToApplications
+{
+	[self openPath: @"/Applications"];
+}
+
+- (void) sendSrcPath: (NSString*)srcPath toDstPath: (NSString*)dstPath byMoving: (BOOL)move;
 {
 	//Ensure absolute paths
-	//TODO: Files in root are interprated as non-absolute (eg: /Test).  This should be fixed to allow
-	//relative paths to be moved/copied
-	//if ([srcPath isAbsolutePath] == FALSE && [srcPath isEqualToString: @"/"] == FALSE);
-	//	srcPath = [[_fileManager currentDirectoryPath] stringByAppendingPathComponent: srcPath]; 
-	//if ([dstPath isAbsolutePath] == FALSE && [dstPath isEqualToString: @"/"] == FALSE)
-	//	dstPath = [[_fileManager currentDirectoryPath] stringByAppendingPathComponent: dstPath];
-		
+	srcPath = [self absolutePath: srcPath];
+	dstPath = [self absolutePath: dstPath];
+	
 	//Get source file attributes
 	BOOL srcPathIsDirectory;
 	BOOL srcPathExsists = [_fileManager fileExistsAtPath: srcPath isDirectory: &srcPathIsDirectory];
@@ -287,6 +343,20 @@
 	//}
 }
 
+- (void) makeDirectoryAtPath: (NSString*)path
+{
+	BOOL operationSuccess = [_fileManager createDirectoryAtPath: path attributes: nil];
+	//TODO: error on failed deletion
+	[self refreshFileView];
+}
+
+- (void) makeFileAtPath: (NSString*)path
+{
+	BOOL operationSuccess = [_fileManager createFileAtPath: path contents: nil attributes:nil];
+	//TODO: error on failed deletion
+	[self refreshFileView];
+}
+
 - (void) deletePath: path
 {
 	BOOL operationSuccess = [_fileManager removeFileAtPath: path handler: nil];
@@ -308,20 +378,13 @@
 	//Applications
 	if ([extension isEqualToString: @"app"])
 	{
-		//TODO: Could use any of these from UIImage to load path. Which will work most often?
-		//+ (id)applicationImageNamed:(id)fp8;	// IMP=0x323bbdbc
-		//+ (id)defaultDesktopImage;	// IMP=0x323bc1f4
-		//+ (id)imageAtPath:(id)fp8;	// IMP=0x323bbda4
-		//+ (id)imageFromAlbumArtData:(id)fp8 height:(int)fp12 width:(int)fp16 cache:(BOOL)fp20;	// IMP=0x323bc3d8
-		//+ (id)imageNamed:(id)fp8;	// IMP=0x323bbd54
-		//+ (id)imageNamed:(id)fp8 inBundle:(id)fp12;	// IMP=0x323bbd8c
-		NSString* absolutePath = [[NSString alloc] initWithString: path];
-		if ([absolutePath isAbsolutePath] == FALSE)
-			absolutePath = [[_fileManager currentDirectoryPath] stringByAppendingPathComponent: path];
+		NSString* absolutePath = [self absolutePath: path];
 		NSString* appIconPath = [absolutePath stringByAppendingPathComponent: @"icon.png"];
 			
 		if ([_fileManager isReadableFileAtPath: appIconPath])
 			return [UIImage imageAtPath: appIconPath];
+		else
+			return [UIImage applicationImageNamed: @"Application.png"];
 	}
 	
 	//Check if file is a directory

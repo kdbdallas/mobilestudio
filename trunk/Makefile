@@ -5,13 +5,13 @@ LDFLAGS=-lobjc -framework CoreFoundation -framework Foundation -framework UIKit 
 all:	Finder TextEdit Preview package
 #all:	TextEdit Preview package
 
-Finder:	src/MobileFinder/MobileFinder.o src/MobileFinder/MobileFinderApp.o src/MobileFinder/MobileFinderBrowser.m
+Finder:	src/MobileFinder/MFMain.o src/MobileFinder/MFApp.o src/MobileFinder/MFBrowser.o src/MobileFinder/MFSettings.o  src/MobileStudio/MSAppLauncher.o
 	$(LD) $(LDFLAGS) -o $@ $^
 	
-TextEdit:	src/MobileTextEdit/main.o src/MobileTextEdit/MobileTextEdit.o
+TextEdit:	src/MobileTextEdit/main.o src/MobileTextEdit/MobileTextEdit.o src/MobileStudio/MSAppLauncher.o
 	$(LD) $(LDFLAGS) -o $@ $^
 	
-Preview:	src/MobilePreview/main.o src/MobilePreview/MobilePreview.o
+Preview:	src/MobilePreview/main.o src/MobilePreview/MobilePreview.o src/MobileStudio/MSAppLauncher.o
 	$(LD) $(LDFLAGS) -o $@ $^
 
 %.o:	%.m

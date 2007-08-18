@@ -1,4 +1,5 @@
 #import "MobilePreview.h"
+#import "../MobileStudio/MSAppLauncher.h"
 
 @implementation MobilePreview
 
@@ -11,7 +12,7 @@
 		break;
 
 		case 1:	//Open
-			[self launchApplicationWithIdentifier:@"com.googlecode.MobileFinder" suspended:NO];
+			[MSAppLauncher launchApplication: @"com.googlecode.MobileFinder" withApplication: self];
 		break;
 	}
 }
@@ -54,7 +55,15 @@
 	}
 	else
 	{
-		//
+		path = [MSAppLauncher readLaunchInfoArgumentFromBundlePath: @"/Applications/Preview.app"];
+
+		_imageView = [UIImage imageAtPath: path];
+
+		UIImageView *imgSubView = [[UIImageView alloc] initWithFrame: CGRectMake(0.0f, 40.0f, 320.0f, 445.0f - 40.0f)];
+		
+		[imgSubView setImage: _imageView];
+
+		[_mainView addSubview: imgSubView];
 	}
 }
 
