@@ -8,7 +8,6 @@
 #import <UIKit/UIApplication.h>
 #import <UIKit/UIImageView.h>
 #import <GraphicsServices/GraphicsServices.h>
-#import <UIKit/UITextView.h>
 
 @interface MobilePreview : UIApplication {
         UIWindow *_window;
@@ -16,9 +15,7 @@
 		UINavigationBar *_navBar;
 		UIImage *_imageView;
 		NSString *path;
-		UITextView  *textView;
+		NSFileManager *filemanager;
 }
-
-//- (void)deviceOrientationChanged:(GSEvent *)event;
 
 @end

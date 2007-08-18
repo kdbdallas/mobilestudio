@@ -1,11 +1,11 @@
 /*
-	MobileFinder.m
+	MFSettings.h
 	
-	Main file for MobileFinder.  Creates an instance of the app and runs it.
+	Finder settings changer control.
 	
 	Copyright 2007 Matt Stoker
-	Begun: Aug/10/2007
-		
+	Begun: Aug/18/2007
+	
 	Thanks: iPhone Dev Team
 	Compilation Toolchain and Hello World Applicaiton
 	
@@ -24,12 +24,15 @@
 	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#import <UIKit/UIKit.h>
-#import "MobileFinderApp.h"
+#import <Foundation/Foundation.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import <UIKit/UIView.h>
 
-int main(int argc, char** argv)
+@interface MFSettings : UIView
 {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	return UIApplicationMain(argc, argv, [MobileFinderApp class]);
+	id _delegate;
 }
+- (id) initWithFrame: (struct CGRect)rect;
+- (void) setDelegate: (id)delegate;
 
+@end

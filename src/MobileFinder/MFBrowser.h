@@ -1,5 +1,5 @@
 /*
-	MobileFinderBrowser.h
+	MFBrowser.h
 	
 	Finder file browser control.
 	
@@ -33,7 +33,7 @@
 #import <UIKit/UITableColumn.h>
 #import <UIKit/UINavigationBar.h>
 
-@interface MobileFinderBrowser : UIView
+@interface MFBrowser : UIView
 {
 	UITable* _fileviewTable;
 	UITableColumn* _fileviewTableCol;
@@ -44,11 +44,10 @@
 	UIApplication* _application;
 	NSString* _selectedPath;
 }
-- (id) initWithFrame: (struct CGRect)rect;
+- (id) initWithApplication: (UIApplication*) app andFrame: (struct CGRect)rect;
 - (NSString*) absolutePath: (NSString*) path;
 - (NSString*) currentDirectory;
 - (NSString*) currentSelectedPath;
-- (void) setApplication: (UIApplication*)app;
 - (void) setDelegate: (id)delegate;
 - (void) refreshFileView;
 - (void) openPath: (NSString*)path;
@@ -56,15 +55,18 @@
 - (void) changeDirectoryToRoot;
 - (void) changeDirectoryToLast;
 - (void) changeDirectoryToHome;
-- (void) sendSrcPath: (NSString*)srcPath ToDstPath: (NSString*)dstPath ByMoving: (BOOL)move;
+- (void) changeDirectoryToApplications;
+- (void) sendSrcPath: (NSString*)srcPath toDstPath: (NSString*)dstPath byMoving: (BOOL)move;
+- (void) makeDirectoryAtPath: (NSString*)path;
+- (void) makeFileAtPath: (NSString*)path;
 - (UIImage*) determineFileIcon: (NSString*)absolutePath;
 - (void) deletePath: path;
 
 @end
 
 //Protocol for browser state change notifications
-@interface NSObject (MobileFinderBrowserStateChange)
-- (void) browserCurrentDirectoryChanged: (MobileFinderBrowser*)browser ToPath: (NSString*)path;
-- (void) browserCurrentSelectedPathChanged: (MobileFinderBrowser*) browser ToPath: (NSString*) path;
+@interface NSObject (MFBrowserStateChange)
+- (void) browserCurrentDirectoryChanged: (MFBrowser*)browser toPath: (NSString*)path;
+- (void) browserCurrentSelectedPathChanged: (MFBrowser*) browser toPath: (NSString*) path;
 @end
 
