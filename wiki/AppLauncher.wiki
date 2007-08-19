@@ -12,7 +12,7 @@ Use this simple library from the svn to allow your applications to be launched w
 To read the first passed argument from LaunchInfo.plist:
 
 {{{
-NSString* argument = [MSAppLauncher readLaunchInfoArgumentsFromBundlePath: @"/Applications/TextEdit.app"];
+NSString* argument = [MSAppLauncher readLaunchInfoArgumentsFromBundlePath: @"/Applications/TextEdit.app" deletingLaunchPList: TRUE];
 }}}
 
 Which returns nil if no LaunchInfo.plist is found or no arguments are passed.
@@ -50,5 +50,4 @@ The file output looks like this:
 </dict>
 </plist>
 }}}
-
 
