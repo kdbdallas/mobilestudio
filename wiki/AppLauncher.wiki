@@ -15,7 +15,7 @@ To read the first passed argument from LaunchInfo.plist:
 NSString* argument = [MSAppLauncher readLaunchInfoArgumentsForAppID: @"com.google.code.TextEdit" withApplication: self deletingLaunchPList: TRUE];
 }}}
 
-Which returns nil if no LaunchInfo.plist is found or no arguments are passed.
+Which returns nil if no launch info file is found or no arguments are passed.
 
 To launch an application, building a full plist, with the ability to pass many arguments (only one in this example):
 
