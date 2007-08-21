@@ -31,16 +31,20 @@
 {
 }
 
-+ (void) launchApplication: (NSString*)appID withApplication: (UIApplication*)app;
++ (NSString*) msDirPathWithApplication: (UIApplication*)app;
++ (NSString*) launchInfoPathForAppID: (NSString*)appID withApplication: app;
++ (void) launchApplication: (NSString*)appID
+	withApplication: (UIApplication*)app;
 + (void) launchApplication: (NSString*)appID 
-	withAppBundlePath: (NSString*)appBundlePath 
+	withLaunchingAppID: (NSString*) launchingAppID 
+	withApplication: (UIApplication*)app;
++ (void) launchApplication: (NSString*)appID 
 	withArguments: (NSArray*)args 
-	withApplication: (UIApplication*)app 
 	withLaunchingAppID: (NSString*)launchingAppID 
-	withLaunchingAppBundlePath: (NSString*)launchingAppBundlePath;
-+ (NSDictionary*) readLaunchInfoFromBundlePath: (NSString*)bundlePath deletingLaunchPList: (BOOL)deleteLaunchPList;
-+ (id) readLaunchInfoKey: (NSString*)key fromBundlePath: (NSString*)bundlePath deletingLaunchPList: (BOOL)deleteLaunchPList;
-+ (NSArray*) readLaunchInfoArgumentsFromBundlePath: (NSString*)bundlePath deletingLaunchPList: (BOOL)deleteLaunchPList;
-+ (NSString*) readLaunchInfoArgumentFromBundlePath: (NSString*)bundlePath deleteingLaunchPList: (BOOL)deleteLaunchPList;
+	withApplication: (UIApplication*)app;
++ (NSDictionary*) readLaunchInfoForAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList;
++ (id) readLaunchInfoKey: (NSString*)key forAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList;
++ (NSArray*) readLaunchInfoArgumentsForAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList;
++ (NSString*) readLaunchInfoArgumentForAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList;
 
 @end

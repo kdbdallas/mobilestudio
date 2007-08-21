@@ -30,46 +30,69 @@
 
 @implementation MSAppLauncher : NSObject
 
-+ (void) launchApplication: (NSString*)appID withApplication: (UIApplication*)app
++ (NSString*) msDirPathWithApplication: (UIApplication*)app
 {
-	//Regular app launch method: launch with no LaunchInfo.plist (Thanks Launcher.app dev team!)
+	return [[app userLibraryDirectory] stringByAppendingPathComponent: @"MobileStudio"];
+}
+
++ (NSString*) launchInfoPathForAppID: (NSString*)appID withApplication: app
+{
+	return [[[MSAppLauncher msDirPathWithApplication: app] 
+		stringByAppendingPathComponent: appID]
+		stringByAppendingPathExtension: @"plist"];
+}
+
++ (void) launchApplication: (NSString*)appID
+	withApplication: (UIApplication*)app
+{
+	//Actually launch application (Thanks Launcher.app dev team!)
 	[app launchApplicationWithIdentifier: appID suspended: NO];
 }
 
 + (void) launchApplication: (NSString*)appID 
-	withAppBundlePath: (NSString*)appBundlePath 
-	withArguments: (NSArray*)args 
-	withApplication: (UIApplication*)app 
 	withLaunchingAppID: (NSString*)launchingAppID 
-	withLaunchingAppBundlePath: (NSString*)launchingAppBundlePath
+	withApplication: (UIApplication*)app
 {
-	//Build LaunchInfo.plist dictionary
+	//TODO: Is an empty arguments array valid on read?
+	[MSAppLauncher launchApplication: appID
+		withArguments: [[NSArray alloc] init]
+		withLaunchingAppID: launchingAppID
+		withApplication: app];
+}
+
++ (void) launchApplication: (NSString*)appID 
+	withArguments: (NSArray*)args 
+	withLaunchingAppID: (NSString*)launchingAppID 
+	withApplication: (UIApplication*)app 
+{
+	//Build launch info dictionary
 	NSDictionary* plist = [[NSDictionary alloc] initWithObjectsAndKeys:
 		launchingAppID, @"MSLaunchingAppIdentifier",
-		launchingAppBundlePath, @"MSLaunchingAppBundlePath",
 		appID, @"MSLaunchedAppIdentifier",
-		appBundlePath, @"MSLaunchedAppBundlePath",		
 		args, @"MSLaunchedAppArguments",
 		nil];
 	
-	//Seralize LaunchInfo.plist dictionary
+	//Serialize launch info dictionary
 	NSString* error;
 	NSData* rawPList = [NSPropertyListSerialization dataFromPropertyList: plist		
 		format: NSPropertyListXMLFormat_v1_0
 		errorDescription: &error];
 	
-	//Write LaunchInfo.plist file
-	NSString* path = [appBundlePath stringByAppendingPathComponent: @"LaunchInfo.plist"];
-	[rawPList writeToFile: path atomically: YES];
-
-	//Actually launch application
+	//Ensure exsistance of MobileStudio folder
+	[[NSFileManager defaultManager] createDirectoryAtPath: [MSAppLauncher msDirPathWithApplication: app] attributes: nil];
+			
+	//Write launch info file
+	NSString* launchPListPath = [MSAppLauncher launchInfoPathForAppID: appID withApplication: app];
+	[rawPList writeToFile: launchPListPath atomically: YES];
+	
+	//Actually launch application (Thanks Launcher.app dev team!)
 	[MSAppLauncher launchApplication: appID withApplication: app];
 }
 
-+ (NSDictionary*) readLaunchInfoFromBundlePath: (NSString*)bundlePath deletingLaunchPList: (BOOL)deleteLaunchPList
++ (NSDictionary*) readLaunchInfoForAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList
 {
 	//Build the full path to the LaunchInfo.plist file
-	NSString* plistPath = [bundlePath stringByAppendingPathComponent: @"LaunchInfo.plist"];
+	NSString* plistPath = [MSAppLauncher launchInfoPathForAppID: appID withApplication: app];
 	
 	//Open the plist and find the application's identifier
 	//TODO: file errors
@@ -85,12 +108,16 @@
 	return nil;
 }
 
-+ (id) readLaunchInfoKey: (NSString*)key fromBundlePath: (NSString*)bundlePath deletingLaunchPList: (BOOL)deleteLaunchPList
++ (id) readLaunchInfoKey: (NSString*)key forAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList
 {
-	NSDictionary* plistDict = [MSAppLauncher readLaunchInfoFromBundlePath: bundlePath deletingLaunchPList: deleteLaunchPList];
+	//Get the dictonary form of the launch info file
+	NSDictionary* plistDict = [MSAppLauncher readLaunchInfoForAppID: appID 
+		withApplication: app 
+		deletingLaunchPList: deleteLaunchPList];
 	if (plistDict == nil)
 		return nil;
 		
+	//Linearly search for the key
 	NSEnumerator* enumerator = [plistDict keyEnumerator];
 	NSString* currKey;
 	while (currKey = [enumerator nextObject]) 
@@ -100,21 +127,27 @@
 			return [plistDict valueForKey: currKey];
 		}
 	}
+	
+	//Key not found, return nil
+	return nil;
 }
 
-+ (NSArray*) readLaunchInfoArgumentsFromBundlePath: (NSString*)bundlePath deletingLaunchPList: (BOOL)deleteLaunchPList
++ (NSArray*) readLaunchInfoArgumentsForAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList
 {
 	//Return the argument array from the launch info file
 	return [MSAppLauncher readLaunchInfoKey: @"MSLaunchedAppArguments" 
-		fromBundlePath: bundlePath 
+		forAppID: appID 
+		withApplication: app
 		deletingLaunchPList: deleteLaunchPList];
 }
 
-+ (NSString*) readLaunchInfoArgumentFromBundlePath: (NSString*)bundlePath deleteingLaunchPList: (BOOL)deleteLaunchPList
++ (NSString*) readLaunchInfoArgumentForAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList
 {
 	//Return just the first argument from the launch info argument array
-	NSArray* args = [MSAppLauncher readLaunchInfoArgumentsFromBundlePath: bundlePath deletingLaunchPList: deleteLaunchPList];
-	if (args == nil)
+	NSArray* args = [MSAppLauncher readLaunchInfoArgumentsForAppID: appID 
+		withApplication: app
+		deletingLaunchPList: deleteLaunchPList];
+	if (args == nil || [args count] == 0)
 		return nil;
 	else
 		return [args objectAtIndex: 0];
