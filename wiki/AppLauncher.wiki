@@ -12,7 +12,7 @@ Use this simple library from the svn to allow your applications to be launched w
 To read the first passed argument from LaunchInfo.plist:
 
 {{{
-NSString* argument = [MSAppLauncher readLaunchInfoArgumentsFromBundlePath: @"/Applications/TextEdit.app" deletingLaunchPList: TRUE];
+NSString* argument = [MSAppLauncher readLaunchInfoArgumentsForAppID: @"com.google.code.TextEdit" withApplication: self deletingLaunchPList: TRUE];
 }}}
 
 Which returns nil if no LaunchInfo.plist is found or no arguments are passed.
@@ -21,11 +21,9 @@ To launch an application, building a full plist, with the ability to pass many a
 
 {{{
 [MSAppLauncher launchApplication: @"com.port21.iphone.TextEdit"
-                withAppBundlePath: @"/Applications/TextEdit.app"
                 withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
                 withApplication: _application
-                withLaunchingAppID: @"com.googlecode.MobileFinder"
-                withLaunchingAppBundlePath: @"/Applications/Finder.app"];
+                withLaunchingAppID: @"com.googlecode.MobileFinder"];
 }}}
 
 The file output looks like this:
@@ -39,15 +37,10 @@ The file output looks like this:
     <array>
         <string>/private/var/root/MobileFinderApp.tst</string>
     </array>
-    <key>MSLaunchedAppBundlePath</key>
-    <string>/Applications/Finder.app</string>
     <key>MSLaunchedAppIdentifier</key>
-    <string>com.googlecode.MobileFinder</string>
-    <key>MSLaunchingAppBundlePath</key>
-    <string>/Applications/Finder.app</string>
+    <string>com.google.code.TextEdit</string>
     <key>MSLaunchingAppIdentifier</key>
     <string>com.googlecode.MobileFinder</string>
 </dict>
 </plist>
 }}}
-
