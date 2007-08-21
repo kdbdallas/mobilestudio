@@ -4,8 +4,8 @@
 
 Use this simple library from the svn to allow your applications to be launched with MobileStudio.
 
-  * [http://mobilestudio.googlecode.com/svn/trunk/MobileStudio/src/MSAppLauncher.h MSAppLauncher.h]
-  * [http://mobilestudio.googlecode.com/svn/trunk/MobileStudio/src/MSAppLauncher.m MSAppLauncher.m]
+  * [http://mobilestudio.googlecode.com/svn/trunk/MSAppLauncher.h MSAppLauncher.h]
+  * [http://mobilestudio.googlecode.com/svn/trunk/MSAppLauncher.m MSAppLauncher.m]
 
 = Details =
 
@@ -20,7 +20,7 @@ Which returns nil if no LaunchInfo.plist is found or no arguments are passed.
 To launch an application, building a full plist, with the ability to pass many arguments (only one in this example):
 
 {{{
-[MSAppLauncher launchApplication: @"com.port21.iphone.TextEdit"
+[MSAppLauncher launchApplication: @"com.google.code.TextEdit"
                 withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
                 withApplication: _application
                 withLaunchingAppID: @"com.googlecode.MobileFinder"];
