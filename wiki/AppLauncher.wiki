@@ -12,7 +12,7 @@ Use this simple library from the svn to allow your applications to be launched w
 To read the first passed argument from LaunchInfo.plist:
 
 {{{
-NSString* argument = [MSAppLauncher readLaunchInfoArgumentsForAppID: @"com.google.code.TextEdit" withApplication: self deletingLaunchPList: TRUE];
+NSString* argument = [MSAppLauncher readLaunchInfoArgumentsForAppID: @"com.your.app.Here" withApplication: self deletingLaunchPList: TRUE];
 }}}
 
 Which returns nil if no launch info file is found or no arguments are passed.
@@ -22,7 +22,7 @@ To launch an application, building a full plist, with the ability to pass many a
 {{{
 [MSAppLauncher launchApplication: @"com.googlecode.MobileFinder"
                 withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
-                withApplication: application
+                withApplication: self
                 withLaunchingAppID: @"com.your.app.Here"];
 }}}
 
