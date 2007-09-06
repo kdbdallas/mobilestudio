@@ -20,10 +20,10 @@ Which returns nil if no launch info file is found or no arguments are passed.
 To launch an application, building a full plist, with the ability to pass many arguments (only one in this example):
 
 {{{
-[MSAppLauncher launchApplication: @"com.google.code.TextEdit"
+[MSAppLauncher launchApplication: @"com.googlecode.MobileFinder"
                 withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
-                withApplication: _application
-                withLaunchingAppID: @"com.googlecode.MobileFinder"];
+                withApplication: application
+                withLaunchingAppID: @"com.your.app.Here"];
 }}}
 
 The file output looks like this:
@@ -35,12 +35,12 @@ The file output looks like this:
 <dict>
     <key>MSLaunchedAppArguments</key>
     <array>
-        <string>/private/var/root/MobileFinderApp.tst</string>
+        <string>/private/var/root/file.test</string>
     </array>
     <key>MSLaunchedAppIdentifier</key>
-    <string>com.google.code.TextEdit</string>
-    <key>MSLaunchingAppIdentifier</key>
     <string>com.googlecode.MobileFinder</string>
+    <key>MSLaunchingAppIdentifier</key>
+    <string>com.your.app.Here</string>
 </dict>
 </plist>
 }}}
