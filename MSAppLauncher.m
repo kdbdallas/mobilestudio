@@ -30,36 +30,6 @@
 
 @implementation MSAppLauncher : NSObject
 
-+ (NSString*) msDirPathWithApplication: (UIApplication*)app
-{
-	return [[app userLibraryDirectory] stringByAppendingPathComponent: @"MobileStudio"];
-}
-
-+ (NSString*) launchInfoPathForAppID: (NSString*)appID withApplication: app
-{
-	return [[[MSAppLauncher msDirPathWithApplication: app] 
-		stringByAppendingPathComponent: appID]
-		stringByAppendingPathExtension: @"plist"];
-}
-
-+ (void) launchApplication: (NSString*)appID
-	withApplication: (UIApplication*)app
-{
-	//Actually launch application (Thanks Launcher.app dev team!)
-	[app launchApplicationWithIdentifier: appID suspended: NO];
-}
-
-+ (void) launchApplication: (NSString*)appID 
-	withLaunchingAppID: (NSString*)launchingAppID 
-	withApplication: (UIApplication*)app
-{
-	//TODO: Is an empty arguments array valid on read?
-	[MSAppLauncher launchApplication: appID
-		withArguments: [[NSArray alloc] init]
-		withLaunchingAppID: launchingAppID
-		withApplication: app];
-}
-
 + (void) launchApplication: (NSString*)appID 
 	withArguments: (NSArray*)args 
 	withLaunchingAppID: (NSString*)launchingAppID 
@@ -85,8 +55,25 @@
 	NSString* launchPListPath = [MSAppLauncher launchInfoPathForAppID: appID withApplication: app];
 	[rawPList writeToFile: launchPListPath atomically: YES];
 	
+	[plist release];
+	
 	//Actually launch application (Thanks Launcher.app dev team!)
-	[MSAppLauncher launchApplication: appID withApplication: app];
+	[app launchApplicationWithIdentifier: appID suspended: NO];
+}
+
++ (void) launchApplication: (NSString*)appID 
+	withLaunchingAppID: (NSString*)launchingAppID 
+	withApplication: (UIApplication*)app
+{
+	//TODO: Is an empty arguments array valid on read?
+	NSArray* args = [[NSArray alloc] init];
+	
+	[MSAppLauncher launchApplication: appID
+		withArguments: args 
+		withLaunchingAppID: launchingAppID
+		withApplication: app];
+		
+	[args release];
 }
 
 + (NSDictionary*) readLaunchInfoForAppID: (NSString*)appID withApplication: app deletingLaunchPList: (BOOL)deleteLaunchPList
@@ -151,6 +138,18 @@
 		return nil;
 	else
 		return [args objectAtIndex: 0];
+}
+
++ (NSString*) msDirPathWithApplication: (UIApplication*)app
+{
+	return [[app userLibraryDirectory] stringByAppendingPathComponent: @"MobileStudio"];
+}
+
++ (NSString*) launchInfoPathForAppID: (NSString*)appID withApplication: app
+{
+	return [[[MSAppLauncher msDirPathWithApplication: app] 
+		stringByAppendingPathComponent: appID]
+		stringByAppendingPathExtension: @"plist"];
 }
 
 @end
