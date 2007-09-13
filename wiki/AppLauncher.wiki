@@ -21,7 +21,7 @@ To launch an application, building a full plist, with the ability to pass many a
 
 {{{
 [MSAppLauncher launchApplication: @"com.googlecode.MobileFinder"
-                withArguments: [[NSArray alloc] initWithObjects: absolutePath, nil]
+                withArguments: [NSArray arrayWithObjects: absolutePath, nil]
                 withApplication: self
                 withLaunchingAppID: @"com.your.app.Here"];
 }}}
